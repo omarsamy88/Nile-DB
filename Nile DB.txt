@@ -1,0 +1,198 @@
+drop table categories;
+drop table members;
+drop table books;
+drop table loans;
+----------------------------------
+create table categories(
+category_id number not null,
+category_name varchar2(100) not null
+);
+----------------------------------
+create table members(
+member_id number not null,
+full_name varchar2(100) not null,
+email varchar(100),
+phone varchar2(12),
+city varchar2(100),
+joined_on date default sysdate,
+points number default 0
+);
+----------------------------------
+create table books(
+book_id number not null,
+title varchar2(100) not null,
+author varchar2(100),
+category_id number,
+price number(8,2),
+copies_available number,
+published_year number
+);
+-----------------------------------
+create table loans(
+loan_id number not null,
+member_id number,
+book_id number,
+loaned_at timestamp default systimestamp,
+status varchar2(20) default 'ACTIVE'
+);
+------------------------------------
+INSERT INTO categories VALUES (1, 'Technology');
+INSERT INTO categories VALUES (2, 'Fiction');
+INSERT INTO categories VALUES (3, 'History');
+------------------------------------
+INSERT INTO members VALUES (1, 'Ahmed Hassan', 'ahmed.hassan@mail.com', '01012345678', 'Cairo', ADD_MONTHS(SYSDATE, -14), 250);
+INSERT INTO members VALUES (2, 'Mona Ali', 'mona.ali@mail.com', '01123456789', 'Cairo', ADD_MONTHS(SYSDATE, -9), 120);
+INSERT INTO members VALUES (3, 'Youssef Samir', 'youssef@gmail.com', '01234567890', 'Giza', ADD_MONTHS(SYSDATE, -3), 0);
+INSERT INTO members VALUES (4, 'Amira Tarek', 'amira@mail.com', '01098765432', 'Alexandria', ADD_MONTHS(SYSDATE, -20), 80);
+INSERT INTO members VALUES (5, 'Karim Nabil', 'karim@gmail.com', NULL, 'Cairo', ADD_MONTHS(SYSDATE, -7), 150);
+INSERT INTO members VALUES (6, 'Sara Mahmoud', 'sara@mail.com', '01155551234', 'Giza', ADD_MONTHS(SYSDATE, -2), 400);
+INSERT INTO members VALUES (7, 'Omar Fathy', 'omar@yahoo.com', '01277778888', 'Cairo', ADD_MONTHS(SYSDATE, -12), 95);
+INSERT INTO members VALUES (8, 'Laila Adel', 'laila@mail.com', '01066669999', 'Mansoura', ADD_MONTHS(SYSDATE, -1), 30);
+--------------------------------------
+INSERT INTO books VALUES (1, 'Algorithms Made Simple', 'Omar Salem', 1, 450.00, 5, 2020);
+INSERT INTO books VALUES (2, 'Ancient Egypt', 'Hana Mostafa', 3, 320.00, 3, 2018);
+INSERT INTO books VALUES (3, 'Pocket SQL Guide', 'Nadia Fouad', 1, 85.00, 12, 2022);
+INSERT INTO books VALUES (4, 'Spring Boot in Action', 'Tarek Hegazy', 1, 500.00, 4, 2023);
+INSERT INTO books VALUES (5, 'Complete Oracle Reference', 'Mina Gerges', 1, 1250.00, 2, 2021);
+INSERT INTO books VALUES (6, 'The Desert Night', 'Laila Hamdy', 2, 150.00, 0, 2015);
+INSERT INTO books VALUES (7, 'Egyptian History', 'Hana Mostafa', 3, 280.00, 6, 2019);
+INSERT INTO books VALUES (8, 'City of Lights', NULL, 2, 199.99, 7, 2017);
+INSERT INTO books VALUES (9, 'Clean Code Basics', 'Youssef Anwar', 1, 600.00, 8, 2020);
+INSERT INTO books VALUES (10, 'The Last Pharaoh', 'Amr Zaki', 3, 100.00, 1, 2016);
+--------------------------------------
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (1, 1, 1);
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (2, 2, 3);
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (3, 3, 2);
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (4, 1, 4);
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (5, 6, 5);
+INSERT INTO loans (loan_id, member_id, book_id) VALUES (6, 7, 9);
+------------------(3)--------------------
+commit;
+alter table books add(isbn number);
+alter table loans add(returned_at date);
+-------------------(4)-------------------
+select * from books;
+select * from loans;
+update loans set status ='RETURNED' where loan_id =1;
+update loans set returned_at = sysdate where loan_id =1;
+update books set price= price + (price * 0.1);
+commit;
+-------------------(5)--------------------
+delete from books;
+select * from books;
+rollback;
+-- bec trancate is a ddl and can't use roolback but delete dml can use commit and rollback 
+------------------(6)----------------------
+select * from loans;
+select * from members;
+delete from members where member_id=4;
+rename loans to book_loans;
+commit;
+----------------(7)-----------------------
+select * from members;
+-----------------(8)---------------------
+select title as "Book Title", author as "Author", price as "Price"  from books;
+------------------(9)--------------------
+select distinct city from members;
+--------------------(10)------------------
+select round(price*1.14,2) as "price with vat" from books;
+---------------------(11)-----------------
+select * from members where city = 'Cairo';
+select * from members where city = 'cairo';
+-- bec is a senstive and in insert is Cairo not cairo we can make initcap('cairo') to solve problem
+----------------------(12)--------------
+select * from books 
+where price >300
+and copies_available >0;
+----------------------(13)--------------
+select * from books 
+where price between 100 and 500;
+---------------------(14)----------------
+select * from members 
+where city in('Cairo','Giza','Alexandria');
+
+select * from members 
+where city= 'Cairo'
+or city= 'Giza'
+or city= 'Alexandria';
+-- in is cleaner
+-------------------------(15)--------------
+select * from books 
+where title like 'A%'
+and title like '%y';
+
+select * from books 
+where title like 'A%';
+
+select * from books 
+where title like '%y';
+------------------------(16)-----------------
+select * from members
+where phone is null;
+-- bec its unknown
+-------------------------(17)-----------------
+select * from books 
+order by price desc,title asc;
+--------------------------(18)----------------
+select * from members
+where city in ('Cairo', 'Giza')
+and phone is not null
+order by points desc;
+-------------------------(19)-----------------
+select initcap(full_name||' - ' || city) as "Greeting Line",upper(full_name||' - ' || city) as "upper case",length(full_name||' - ' || city)as length,'@' ||email as email from members;
+select initcap(full_name||' - ' || city) as "Greeting Line",upper(full_name||' - ' || length(full_name)) as "upper case and lenght",'@' ||email as email from members;
+-------------------------(20)------------------
+select * from members
+where (sysdate-joined_on) /30 >6
+and points <200;
+-------------------------(21)------------------
+SELECT * FROM members
+WHERE city = 'Cairo' OR city = 'Giza' AND points >= 100;
+-- 5 rows all cairo and giza >100
+SELECT * FROM members
+WHERE (city = 'Cairo' OR city = 'Giza') AND points >= 100;
+-- 4 rows cairo or giza >100
+SELECT * FROM books WHERE price BETWEEN 500 AND 100;
+-- 0 rows smaller must be first
+SELECT title, price * 1.14 AS price_vat
+FROM books WHERE price_vat > 500;
+--error bec we can't use alias in where
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
